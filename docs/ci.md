@@ -2,11 +2,11 @@
 
 ## What runs automatically
 
-`.github/workflows/ci.yml` runs on pushes to `main`, pull requests targeting `main`,
+`.github/workflows/ci.yml` runs on pushes to every branch, pull requests targeting `main`,
 and manual dispatch. GitHub-hosted Ubuntu uses Node.js 24 and `npm ci` with the lockfile.
 
 1. ESLint.
-2. Ten deterministic RSS/ranking and edition-storage tests (no publisher network required).
+2. Deterministic RSS/ranking, edition, and storage-adapter tests (no publisher network required).
 3. Production build and TypeScript checks.
 4. Standalone release packaging, including CSS assets and excluding `.env` files and reader data.
 5. Production smoke test on port 3100: homepage/CSS, onboarding, cookie-based preference
@@ -53,12 +53,15 @@ target has been selected. Extract the Linux artifact on a compatible Linux host
 with Node.js 24, then run `node server.js`. Set `HOSTNAME=0.0.0.0` and `PORT` as needed.
 The archive includes runtime dependencies, so `npm install` is not required there.
 
-The server needs durable writable `data/` storage, preserved across release changes,
+When using the local adapter, the server needs durable writable `data/` storage, preserved across release changes,
 and a filesystem supporting hard links. Back it up; never replace it with a build.
 Keep one application instance while using local JSON storage. Configure HTTPS and
 the public origin/proxy behavior, then verify cookie saves through the actual host.
 The Linux CI artifact is the deployment package; a Windows local build is not a
 portable Linux release.
+
+For Vercel with persistent Supabase storage, follow [storage setup](storage.md).
+The Supabase adapter is implemented, but a live database is not yet connected.
 
 Once hosting is chosen, add deployment after successful checks, with credentials
 in GitHub environment secrets and a post-deploy smoke test. Do not describe this

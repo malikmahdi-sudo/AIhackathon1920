@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: ["**"]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -21,6 +21,7 @@ jobs:
     timeout-minutes: 15
     env:
       NEXT_TELEMETRY_DISABLED: "1"
+      STORAGE_DRIVER: local
     steps:
       - name: Check out source
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6

@@ -74,7 +74,7 @@ export function OnboardingForm({ initial }: { initial: ReaderPreferences | null 
       </fieldset>
       {error && <p className="form-error" role="alert">{error}</p>}
       <button type="submit" className="button" disabled={saving}>{saving ? "Saving your choices…" : initial ? "Save changes" : "Save my preferences"}<span aria-hidden="true">→</span></button>
-      <p className="field-hint">No account needed. Preferences are saved on this server and linked to this browser with a cookie. Clearing cookies resets access.</p>
+      <p className="field-hint">No account needed. Your saved preferences are linked to this browser with a cookie. Clearing cookies resets access.</p>
     </form>
   );
 }

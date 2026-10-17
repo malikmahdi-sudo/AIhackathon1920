@@ -13,7 +13,7 @@ npm ci
 npm run dev
 ```
 
-Open http://localhost:3000. No API keys or environment variables are needed yet.
+Open http://localhost:3000. Local mode needs no API keys. Supabase mode is configured in [storage setup](docs/storage.md).
 Choose "Read your morning paper". New readers are sent to `/onboarding` first.
 Returning readers can open `/paper`, browse `/archives`, and edit preferences anytime.
 
@@ -39,6 +39,7 @@ src/
   lib/             Preference validation and server-only JSON persistence
     news/          Feed sources, parsing, caching, deduplication, and ranking
     editions/      Immutable daily snapshots and archive storage
+    storage/       Local JSON and Supabase adapters behind one interface
   types/paper.ts   Shared preference, article, edition, and signal types
 data/              Local reader preferences and editions (ignored by Git)
 tests/             Offline engine tests and live integration checks
@@ -59,10 +60,11 @@ a 5/10/20-minute reading time, and a timezone, then save or edit their choices.
 Recommendations are available through `/api/recommendations` after onboarding.
 The daily paper and archives are available. PDF export and AI synthesis are future milestones.
 
-MVP persistence uses one JSON file per reader on a single Node.js server with a
-writable disk. Writes are serialized within the process and files are replaced
-atomically. Ephemeral/serverless or multiple-instance hosting requires persistent
-storage such as Supabase. Never commit reader data or secret keys.
+Storage is selectable: local JSON for instant development or Supabase PostgreSQL
+for persistent serverless deployments. See [storage setup](docs/storage.md) for the
+schema, environment variables, and Vercel configuration. Local writes are serialized
+within one process; cloud edition uniqueness is enforced by PostgreSQL. Never commit
+reader data or secret keys. Supabase credentials and live verification remain pending.
 
 An opaque random reader ID in an HttpOnly, SameSite cookie identifies the browser;
 HTTPS requests also receive the Secure flag. This is an anonymous MVP, not account
@@ -144,10 +146,10 @@ review each publisher's feed terms before public/commercial deployment.
   and a snapshot of preferences and timezone. Changes to preferences affect the next
   unsaved local date; today’s saved paper is not rewritten. Changing timezone may
   select a different calendar date, while existing date-keyed snapshots remain intact.
-- Files live in `data/editions/` and are excluded from Git. A complete temporary file
+- In local mode, files live in `data/editions/` and are excluded from Git. A complete temporary file
   is published with an atomic filesystem hard link, so concurrent requests cannot
   overwrite a day's winner. This requires a local filesystem supporting hard links
-  (tested on Windows NTFS); migrate to transactional database storage for deployment.
+  (tested on Windows NTFS). Supabase mode uses a PostgreSQL unique key instead.
 - Empty matches or total source outages are never saved as editions. Loading, empty,
   retry, storage-error, and missing-archive states are included.
 - The reading page presents publisher excerpts and opens original articles in new

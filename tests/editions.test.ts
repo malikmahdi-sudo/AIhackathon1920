@@ -1,3 +1,4 @@
+import { createLocalStorage } from "../src/lib/storage/local";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { mkdtemp, rm } from "node:fs/promises";
@@ -25,13 +26,13 @@ test("edition dates use reader timezone and reject impossible dates", () => {
 test("editions are immutable, survive reopening, isolate readers, and resolve concurrent creation", async () => {
   const directory = await mkdtemp(path.join(os.tmpdir(), "morning-editions-test-"));
   try {
-    const store = createEditionStore(directory);
+    const store = createEditionStore(createLocalStorage(directory));
     assert.deepEqual(await store.list(preferences.id), []);
     const results = await Promise.all([store.today(preferences, aggregate, now), store.today(preferences, aggregate, now)]);
     assert.equal(results[0].status, "ready");
     assert.deepEqual(results[0], results[1]);
     const offline = async () => { throw new Error("Feed must not be called for existing edition"); };
-    const reloaded = await createEditionStore(directory).today({ ...preferences, topics: ["Sports"] }, offline, now);
+    const reloaded = await createEditionStore(createLocalStorage(directory)).today({ ...preferences, topics: ["Sports"] }, offline, now);
     assert.deepEqual(reloaded, results[0]);
     assert.equal((await store.list(preferences.id)).length, 1);
     assert.equal(await store.read(randomUUID(), "2026-10-18"), null);
@@ -48,7 +49,7 @@ test("editions are immutable, survive reopening, isolate readers, and resolve co
 test("empty and unavailable results are retryable and never saved", async () => {
   const directory = await mkdtemp(path.join(os.tmpdir(), "morning-editions-test-"));
   try {
-    const store = createEditionStore(directory);
+    const store = createEditionStore(createLocalStorage(directory));
     const unavailable: ReturnType<typeof createAggregator> = async () => ({ articles: [], feeds: [{ id: "test", name: "Test", status: "unavailable", fetchedAt: null, articleCount: 0 }] });
     assert.equal((await store.today(preferences, unavailable, now)).status, "unavailable");
     assert.equal((await store.today({ ...preferences, topics: ["Sports"] }, aggregate, now)).status, "empty");
