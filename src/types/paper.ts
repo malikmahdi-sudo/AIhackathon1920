@@ -1,4 +1,4 @@
-/** Shared contracts for later milestones; no reader data is collected yet. */
+/** Shared contracts for reader preferences and future daily editions. */
 export type ReaderPreferences = {
   id: string;
   topics: string[];

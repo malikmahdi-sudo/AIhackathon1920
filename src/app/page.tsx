@@ -1,5 +1,6 @@
 import { FeatureCard } from "@/components/feature-card";
 import { Masthead } from "@/components/masthead";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -11,7 +12,7 @@ export default function Home() {
             <p className="eyebrow">Less scrolling. More understanding.</p>
             <h1 id="welcome-title">The world is noisy.<br />Make your morning <em>clear.</em></h1>
             <p className="intro">A daily collection of stories that matter to you, brought together in one thoughtful paper. Pour a coffee. Find your perspective.</p>
-            <a className="button" href="#inside">Explore your future paper <span aria-hidden="true">↓</span></a>
+            <Link className="button" href="/onboarding">Make it your morning <span aria-hidden="true">→</span></Link>
             <p className="preview-note">An early look. Personal editions are coming soon.</p>
           </div>
           <aside className="editor-note" aria-labelledby="editor-title">
