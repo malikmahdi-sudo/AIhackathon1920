@@ -8,5 +8,6 @@ next-env.d.ts
 !.env.example
 data/*.json
 data/*.tmp
+data/editions/
 *.log
 .DS_Store

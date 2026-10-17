@@ -21,7 +21,9 @@ export type DailyEdition = {
   readerId: string;
   date: string;
   generatedAt: string;
-  articles: Article[];
+  articles: (Article & { reason: string; matchedTopics: string[]; estimatedReadingMinutes: number })[];
+  preferences: Omit<ReaderPreferences, "id">;
+  sourceNotice: string | null;
 };
 
 export type ReaderSignal = {

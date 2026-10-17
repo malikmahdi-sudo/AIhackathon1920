@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test:news": "tsx --test tests/news.test.ts",
+    "test:editions": "tsx --test tests/editions.test.ts",
     "test:news:live": "tsx tests/news-live.ts"
   },
   "dependencies": {

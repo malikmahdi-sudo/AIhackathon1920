@@ -12,7 +12,8 @@ npm run dev
 ```
 
 Open http://localhost:3000. No API keys or environment variables are needed yet.
-Choose "Make it your morning" to set preferences at `/onboarding`.
+Choose "Read your morning paper". New readers are sent to `/onboarding` first.
+Returning readers can open `/paper`, browse `/archives`, and edit preferences anytime.
 
 ```sh
 npm run typecheck
@@ -31,8 +32,9 @@ src/
   components/      Masthead, feature card, and interactive onboarding form
   lib/             Preference validation and server-only JSON persistence
     news/          Feed sources, parsing, caching, deduplication, and ranking
+    editions/      Immutable daily snapshots and archive storage
   types/paper.ts   Shared preference, article, edition, and signal types
-data/              Local reader preferences (ignored by Git)
+data/              Local reader preferences and editions (ignored by Git)
 tests/             Offline engine tests and live integration checks
 ```
 
@@ -41,15 +43,15 @@ tests/             Offline engine tests and live integration checks
 - [x] 1. Foundation: Next.js, TypeScript, Tailwind, responsive welcome page
 - [x] 2. Onboarding and preference persistence
 - [x] 3. RSS aggregation and relevance scoring
-- [ ] 4. Daily reading interface and historical editions
+- [x] 4. Daily reading interface and historical editions
 - [ ] 5. Traditional newspaper PDF from the same saved edition
 - [ ] 6. Reader signals and adaptive recommendations
 - [ ] 7. Architecture diagram and final documentation
 
-The welcome page is a preview, not a live news feed. Readers can select 1–5 topics,
+Readers can select 1–5 topics,
 a 5/10/20-minute reading time, and a timezone, then save or edit their choices.
 Recommendations are available through `/api/recommendations` after onboarding.
-The daily reading interface, archives, PDF export, and AI synthesis are future milestones.
+The daily paper and archives are available. PDF export and AI synthesis are future milestones.
 
 MVP persistence uses one JSON file per reader on a single Node.js server with a
 writable disk. Writes are serialized within the process and files are replaced
@@ -123,6 +125,42 @@ The live tests depend on publisher availability. Offline tests cover RSS/Atom pa
 unsafe input, duplicate merging, ranking, budgets, partial outages, cache expiry,
 oversized feeds, and timeouts. Publisher content remains attributed to its source;
 review each publisher's feed terms before public/commercial deployment.
+
+## Daily reading and archives (Step 4)
+
+- `/paper` creates an edition on the first visit for the reader's local date. Later
+  visits return the identical saved snapshot without needing news feeds. No background
+  scheduler is implemented; days never visited do not get an edition.
+- `/archives` lists the reader's saved editions newest first; `/archives/YYYY-MM-DD`
+  opens one. Archive access always uses the browser's reader cookie, never a reader ID
+  from the URL. Invalid dates or editions belonging to another reader show not found.
+- Editions store article excerpts, original publisher links, recommendation reasons,
+  and a snapshot of preferences and timezone. Changes to preferences affect the next
+  unsaved local date; today’s saved paper is not rewritten. Changing timezone may
+  select a different calendar date, while existing date-keyed snapshots remain intact.
+- Files live in `data/editions/` and are excluded from Git. A complete temporary file
+  is published with an atomic filesystem hard link, so concurrent requests cannot
+  overwrite a day's winner. This requires a local filesystem supporting hard links
+  (tested on Windows NTFS); migrate to transactional database storage for deployment.
+- Empty matches or total source outages are never saved as editions. Loading, empty,
+  retry, storage-error, and missing-archive states are included.
+- The reading page presents publisher excerpts and opens original articles in new
+  tabs; PDF downloads and reader-signal tracking arrive in the following milestones.
+
+```sh
+npm run test:editions
+```
+
+These offline tests cover local-date boundaries, concurrent creation, immutable
+snapshots, reloads, reader isolation, archive order, and empty/outage retries.
+With the dev server on port 3000 and internet available:
+
+```sh
+node --test tests/reading.mjs
+```
+
+This integration test exercises onboarding redirects, first-read creation, archive
+navigation, unchanged editions after preference edits, and cross-reader isolation.
 
 ## Commit checkpoints
 

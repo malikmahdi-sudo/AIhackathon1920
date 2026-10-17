@@ -37,8 +37,8 @@ export function OnboardingForm({ initial }: { initial: ReaderPreferences | null 
       <h2 id="saved-title">Your perspective is taking shape.</h2>
       <p>You’re following <strong>{topics.join(", ")}</strong>.</p>
       <p>{readingMinutes} minutes each morning · {timezone}</p>
-      <p className="muted">Your choices will guide your first edition once daily papers are ready.</p>
-      <div className="form-actions"><button className="button" onClick={() => setSaved(false)}>Edit preferences</button><Link href="/">Back to the front page</Link></div>
+      <p className="muted">Your choices will guide your next new edition. Any paper already saved today stays in your collection as it is.</p>
+      <div className="form-actions"><Link className="button" href="/paper" prefetch={false}>Read my paper →</Link><button className="text-button" onClick={() => setSaved(false)}>Edit preferences</button></div>
     </section>
   );
 
