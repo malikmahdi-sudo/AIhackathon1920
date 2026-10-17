@@ -15,7 +15,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  if (request.headers.get("origin") !== request.nextUrl.origin) {
+  // Next.js can normalize loopback hostnames internally. Compare the browser's
+  // Origin against its HTTP Host, while retaining the request protocol check.
+  const expectedOrigin = `${request.nextUrl.protocol}//${request.headers.get("host")}`;
+  if (request.headers.get("origin") !== expectedOrigin) {
     return NextResponse.json({ error: "Please save preferences from this site." }, { status: 403 });
   }
   if (!request.headers.get("content-type")?.includes("application/json")) {

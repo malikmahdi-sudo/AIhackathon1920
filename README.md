@@ -1,5 +1,7 @@
 # The Morning Paper
 
+[![CI](https://github.com/malikmahdi-sudo/AIhackathon1920/actions/workflows/ci.yml/badge.svg)](https://github.com/malikmahdi-sudo/AIhackathon1920/actions/workflows/ci.yml)
+
 A personal daily newspaper for NaSCon '26, built one committed milestone at a time.
 
 ## Run locally
@@ -23,6 +25,10 @@ npm start
 ```
 
 Run `build` before `start`. The lockfile pins installed dependencies.
+
+For the standalone production package, run `npm run build`, `npm run package:release`,
+then `node .next/release/server.js`. See [CI and delivery documentation](docs/ci.md)
+for automated checks, release artifacts, and the remaining hosting setup.
 
 ## Structure
 
