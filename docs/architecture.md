@@ -31,6 +31,9 @@ flowchart TD
   Download --> Reader
   Git[GitHub push or pull request] --> CI[Install, lint, tests, build, smoke test]
   CI --> Artifact[Verified Linux release artifact on main]
+  Snapshot --> Briefing[Optional OpenAI text briefing]
+  Briefing --> Fallback[Validated source-linked takeaways or headline digest]
+  Fallback --> Reader
 ```
 
 ## Request and data flow
@@ -66,6 +69,15 @@ The browser cannot access the Supabase service-role key. Database tables enable
 RLS without public policies; server-side requests scope records to the cookie owner.
 This is not Supabase Auth: possession of the reader cookie is the identity boundary.
 
+## Optional briefing
+
+Saved snapshots feed a cookie-scoped POST briefing route. It sends only headlines
+and excerpts to OpenAI and validates structured takeaways against the original
+article indexes. Missing credentials/provider failures show a labeled digest.
+The cache is disposable per-instance memory; snapshots are never modified.
+
+![Architecture overview](architecture-diagram.svg)
+
 ## Delivery and current limits
 
 CI checks pushes on all branches and PRs into main. Successful main pushes upload
@@ -74,7 +86,7 @@ has mocked transport tests; applying both migrations and verifying a real projec
 are deployment prerequisites.
 
 The recommendation engine is transparent, rule-based adaptive scoring, not an LLM.
-AI summaries/audio are not implemented. Daily generation happens on first visit,
+Optional AI text briefings use saved headlines/excerpts; audio is not implemented. Daily generation happens on first visit,
 not by scheduled delivery. News availability depends on external feeds, and a new
 empty edition is not saved. Saved papers remain available during feed outages.
 

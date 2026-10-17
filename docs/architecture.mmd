@@ -24,3 +24,6 @@ flowchart TD
   Download --> Reader
   Git[GitHub push or pull request] --> CI[Install, lint, tests, build, smoke test]
   CI --> Artifact[Verified Linux release artifact on main]
+  Snapshot --> Briefing[Optional OpenAI text briefing]
+  Briefing --> Fallback[Validated source-linked takeaways or headline digest]
+  Fallback --> Reader

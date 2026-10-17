@@ -132,3 +132,10 @@ button:disabled { cursor: wait; opacity: .65; }
   .preferences-form legend { font-size: 19px; }
   .masthead nav { gap: 20px; }
 }
+
+.daily-briefing { border-block: 2px solid var(--ink); padding: 24px 0; margin-bottom: 28px; }
+.daily-briefing h2 { font: 30px Georgia, serif; margin: 12px 0; }
+.daily-briefing > p { max-width: 760px; line-height: 1.7; }
+.daily-briefing ul { padding-left: 22px; display: grid; gap: 18px; }
+.daily-briefing li p { font: 18px/1.7 Georgia, serif; margin: 0 0 6px; overflow-wrap: anywhere; }
+.daily-briefing li a { font-size: 12px; text-underline-offset: 3px; }

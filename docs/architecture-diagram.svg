@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="850" viewBox="0 0 1200 850" role="img" aria-labelledby="title desc">
+<title id="title">Personal Morning Paper architecture</title>
+<desc id="desc">Reader preferences and learning signals personalize RSS content into immutable editions. Saved editions feed web archives, PDFs and optional AI briefings. A storage interface supports local JSON or Supabase. GitHub Actions verifies release artifacts.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="#656658"/></marker></defs>
+<style>text{font-family:Arial,sans-serif;fill:#25291e} .box{fill:#fffdf7;stroke:#aaa58d;stroke-width:1.5;rx:12}.accent{fill:#e8edda;stroke:#617448;stroke-width:2;rx:12}.line{fill:none;stroke:#656658;stroke-width:2;marker-end:url(#arrow)}.head{font-size:18px;font-weight:bold}.small{font-size:14px;fill:#535b49}</style>
+<rect width="1200" height="850" fill="#f5f2e8"/>
+<text x="48" y="55" font-family="Georgia,serif" font-size="34">The Morning Paper</text>
+<text x="48" y="84" class="small">NaSCon ’26 · Application, data and delivery architecture</text>
+<rect x="48" y="120" width="310" height="95" class="box"/><text x="68" y="153" class="head">Reader / Next.js App Router</text><text x="68" y="180" class="small">Onboarding · paper · archives</text><text x="68" y="201" class="small">HttpOnly anonymous reader cookie</text>
+<rect x="445" y="120" width="310" height="95" class="box"/><text x="465" y="153" class="head">Preferences + reader signals</text><text x="465" y="180" class="small">Topics · clicks · feedback · visible time</text><text x="465" y="201" class="small">Bounded, decaying learning weights</text>
+<path d="M358 165H440" class="line"/>
+<rect x="48" y="267" width="310" height="95" class="box"/><text x="68" y="300" class="head">BBC / Guardian / Dawn RSS</text><text x="68" y="327" class="small">Bounded fetch · cache · normalization</text><text x="68" y="348" class="small">Validation and deduplication</text>
+<rect x="445" y="267" width="310" height="95" class="box"/><text x="465" y="300" class="head">Personalized selection</text><text x="465" y="327" class="small">Interest · freshness · diversity · learning</text><text x="465" y="348" class="small">Only when an edition is missing</text>
+<path d="M358 313H440M600 215V262" class="line"/>
+<rect x="842" y="267" width="310" height="95" class="accent"/><text x="862" y="300" class="head">Immutable daily edition</text><text x="862" y="327" class="small">Exact article snapshot + preferences</text><text x="862" y="348" class="small">Scoped to cookie owner and date</text><path d="M755 313H837" class="line"/>
+<rect x="842" y="120" width="310" height="95" class="box"/><text x="862" y="153" class="head">Storage interface</text><text x="862" y="180" class="small">Local JSON for development</text><text x="862" y="201" class="small">Supabase PostgreSQL for Vercel</text><path d="M755 165H837M997 267V220" class="line"/>
+<path d="M997 362V405H205V442M600 405V442M997 405V442" class="line"/>
+<rect x="48" y="447" width="310" height="115" class="box"/><text x="68" y="482" class="head">Web reading + archives</text><text x="68" y="510" class="small">Original publisher excerpts and links</text><text x="68" y="535" class="small">Feedback shapes future editions</text>
+<rect x="445" y="447" width="310" height="115" class="box"/><text x="465" y="482" class="head">Traditional newspaper PDF</text><text x="465" y="510" class="small">pdf-lib · embedded fonts · two columns</text><text x="465" y="535" class="small">Private download of the same snapshot</text>
+<rect x="842" y="447" width="310" height="115" class="accent"/><text x="862" y="482" class="head">Optional AI briefing</text><text x="862" y="510" class="small">OpenAI: saved headlines/excerpts only</text><text x="862" y="535" class="small">Validated sources / digest fallback</text>
+<text x="48" y="622" class="head">Delivery pipeline</text>
+<rect x="48" y="645" width="310" height="85" class="box"/><text x="68" y="678" class="head">GitHub push / pull request</text><text x="68" y="705" class="small">Milestone commit history</text>
+<rect x="445" y="645" width="310" height="85" class="box"/><text x="465" y="678" class="head">GitHub Actions</text><text x="465" y="705" class="small">Install · lint · test · build · smoke check</text>
+<rect x="842" y="645" width="310" height="85" class="box"/><text x="862" y="678" class="head">Verified release artifact</text><text x="862" y="705" class="small">Main pushes upload Linux package</text><path d="M358 687H440M755 687H837" class="line"/>
+<text x="48" y="790" class="small">Deployment is not yet configured. Supabase requires migrations and live verification.</text><text x="48" y="815" class="small">AI requires server credentials; headline digest works without keys. Generation is on demand, not scheduled.</text>
+</svg>

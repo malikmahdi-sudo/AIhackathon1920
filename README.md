@@ -8,7 +8,11 @@ A personal daily newspaper for NaSCon '26, built one committed milestone at a ti
 
 See the [architecture diagram](docs/architecture.md), [five-minute demo guide](docs/demo.md),
 [PDF implementation](docs/pdf.md), and [learning design](docs/learning.md).
-The app implements rule-based adaptive personalization; it does not yet use LLM synthesis.
+The app combines adaptive personalization with an optional AI briefing.
+
+![Architecture overview](docs/architecture-diagram.svg)
+
+**Demo placeholder:** [5-minute Loom video — replace before submission](https://www.loom.com/share/REPLACE_WITH_VIDEO_ID)
 CI builds verified artifacts; automatic hosting deployment remains unconfigured.
 
 ## Run locally
@@ -66,7 +70,7 @@ tests/             Offline engine tests and live integration checks
 Readers can select 1â€“5 topics,
 a 5/10/20-minute reading time, and a timezone, then save or edit their choices.
 Recommendations are available through `/api/recommendations` after onboarding.
-The daily paper, archives, and PDF downloads are available. AI synthesis is a future milestone.
+The daily paper, archives, and PDF downloads are available. Optional source-linked AI takeaways are available from both current and archived editions.
 
 Storage is selectable: local JSON for instant development or Supabase PostgreSQL
 for persistent serverless deployments. See [storage setup](docs/storage.md) for the
@@ -184,3 +188,18 @@ Pause after each working milestone, review and commit its files, then push to
 
 Reader feedback and adaptive scoring are documented in [learning setup](docs/learning.md).
 Supabase users must apply the second migration before collecting signals.
+
+## Room to Explore: one-minute briefing
+
+Click **Create my briefing** on any saved paper. The optional OpenAI integration
+summarizes its headlines and excerpts into up to five source-linked takeaways.
+The original web paper, PDF, and archived snapshot remain unchanged.
+
+Copy `.env.example` to `.env.local`, then set `OPENAI_API_KEY` and `OPENAI_MODEL`
+to enable AI. Use a Responses API model supporting structured JSON output.
+Restart the server after changing environment variables. Never use `NEXT_PUBLIC_`
+for credentials. Without both values, the app shows a labeled headline digest.
+No new dependency or database migration is required. See [briefing design](docs/briefing.md).
+
+The model transport is covered by mocked tests; a real paid API call still needs
+credentials and manual verification. Replace the Loom placeholder before submission.

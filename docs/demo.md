@@ -43,7 +43,7 @@ npm run test:release
 With a local dev server on port 3000, run integration checks separately:
 
 ```sh
-node --test tests/preferences.mjs tests/recommendations.mjs tests/reading.mjs tests/pdf-route.mjs tests/signals.mjs
+node --test tests/preferences.mjs tests/recommendations.mjs tests/reading.mjs tests/pdf-route.mjs tests/signals.mjs tests/briefing-route.mjs
 ```
 
 Recommendation and reading integration tests need working live feeds. Tests create
@@ -55,7 +55,7 @@ Supabase mode. CI runs deterministic tests and a packaged-server smoke test inst
 - [ ] Repository visibility is public and its submitted URL is correct.
 - [ ] Final milestone is committed and pushed; latest submitted SHA has green CI.
 - [ ] Loom video is under five minutes and its viewing permissions work.
-- [ ] Architecture diagram is included; use `architecture.md` or export `architecture.mmd`.
+- [ ] Architecture diagram is included; see `architecture-diagram.svg` and `architecture.md`.
 - [ ] Demonstrated PDFs and archives correspond to the same saved edition.
 - [ ] Any live deployment URL has been tested in a fresh browser.
 - [ ] Report limitations honestly: anonymous identity, on-demand daily generation,
@@ -63,3 +63,10 @@ Supabase mode. CI runs deterministic tests and a packaged-server smoke test inst
 
 The project brief asks for the public repository, Loom video, and architecture
 diagram. This guide does not upload or submit any materials on your behalf.
+
+## Room to Explore demo
+
+Show **Create my briefing** on an archive. With credentials it returns an AI
+briefing; without them demonstrate the honestly labeled headline digest. Open a
+source link and show that the paper and PDF retain their original content.
+Budget about 30 seconds for this within the five-minute recording.

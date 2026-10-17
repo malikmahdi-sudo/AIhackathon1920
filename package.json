@@ -11,7 +11,7 @@
     "test:news": "tsx --test tests/news.test.ts",
     "test:editions": "tsx --test tests/editions.test.ts",
     "test:news:live": "tsx tests/news-live.ts",
-    "test": "tsx --test tests/news.test.ts tests/editions.test.ts tests/storage.test.ts tests/pdf.test.ts tests/learning.test.ts",
+    "test": "tsx --test tests/news.test.ts tests/editions.test.ts tests/storage.test.ts tests/pdf.test.ts tests/learning.test.ts tests/briefing.test.ts",
     "package:release": "node scripts/prepare-release.mjs",
     "test:release": "node scripts/smoke-release.mjs"
   },

@@ -1,4 +1,5 @@
 import { ReaderSignals } from "./reader-signals";
+import { DailyBriefing } from "./daily-briefing";
 import Link from "next/link";
 import { DownloadPdf } from "./download-pdf";
 import type { DailyEdition } from "@/types/paper";
@@ -17,6 +18,7 @@ export function EditionView({ edition }: { edition: DailyEdition }) {
         <p className="intro">{edition.articles.length} stories selected around {edition.preferences.topics.join(", ")}. About {minutes} minutes to explore.</p>
         <div className="edition-tools"><DownloadPdf date={edition.date} /><Link href="/archives">Browse your editions →</Link><Link href="/onboarding">Refine your interests</Link></div>
       </header>
+      <DailyBriefing key={edition.id} date={edition.date} />
       {edition.sourceNotice && <p className="edition-notice">{edition.sourceNotice}</p>}
       <p className="story-reason">Likes, skips, clicks, and time viewing stories help shape future editions. Skipping hides a story for this visit only; your saved paper and PDF stay unchanged.</p>
       <div className="reading-grid">
