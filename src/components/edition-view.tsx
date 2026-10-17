@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DownloadPdf } from "./download-pdf";
 import type { DailyEdition } from "@/types/paper";
 
 export function displayDate(date: string) {
@@ -13,7 +14,7 @@ export function EditionView({ edition }: { edition: DailyEdition }) {
         <p className="eyebrow">Your personal edition · <time dateTime={edition.date}>{displayDate(edition.date)}</time></p>
         <h1>A fresh perspective.<br /><em>A moment for you.</em></h1>
         <p className="intro">{edition.articles.length} stories selected around {edition.preferences.topics.join(", ")}. About {minutes} minutes to explore.</p>
-        <div className="edition-tools"><Link href="/archives">Browse your editions →</Link><Link href="/onboarding">Refine your interests</Link></div>
+        <div className="edition-tools"><DownloadPdf date={edition.date} /><Link href="/archives">Browse your editions →</Link><Link href="/onboarding">Refine your interests</Link></div>
       </header>
       {edition.sourceNotice && <p className="edition-notice">{edition.sourceNotice}</p>}
       <div className="reading-grid">

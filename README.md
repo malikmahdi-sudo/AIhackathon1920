@@ -51,14 +51,14 @@ tests/             Offline engine tests and live integration checks
 - [x] 2. Onboarding and preference persistence
 - [x] 3. RSS aggregation and relevance scoring
 - [x] 4. Daily reading interface and historical editions
-- [ ] 5. Traditional newspaper PDF from the same saved edition
+- [x] 5. Traditional newspaper PDF from the same saved edition
 - [ ] 6. Reader signals and adaptive recommendations
 - [ ] 7. Architecture diagram and final documentation
 
 Readers can select 1–5 topics,
 a 5/10/20-minute reading time, and a timezone, then save or edit their choices.
 Recommendations are available through `/api/recommendations` after onboarding.
-The daily paper and archives are available. PDF export and AI synthesis are future milestones.
+The daily paper, archives, and PDF downloads are available. AI synthesis is a future milestone.
 
 Storage is selectable: local JSON for instant development or Supabase PostgreSQL
 for persistent serverless deployments. See [storage setup](docs/storage.md) for the
