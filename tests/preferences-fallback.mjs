@@ -43,11 +43,25 @@ try {
     assert.equal(typeof data.error, "string");
     assert.ok(!JSON.stringify(data).includes("EROFS"));
   }
-  for (const route of ["/paper", "/archives", "/archives/2026-10-17"]) {
+  for (const route of ["/archives", "/archives/2026-10-17"]) {
     const res = await fetch(`${origin}${route}`, { headers });
     assert.equal(res.status, 200);
     assert.match(await res.text(), /reading desk is reconnecting/);
   }
+  const paperPage = await fetch(`${origin}/paper`, { headers, redirect: "manual" });
+  assert.equal(paperPage.status, 200);
+  assert.match(await paperPage.text(), /Preparing your morning paper/);
+  const preview = await fetch(`${origin}/api/paper?topics=Science&readingMinutes=10&timezone=UTC`, { headers });
+  assert.equal(preview.status, 200);
+  const previewBody = await preview.json();
+  assert.equal(previewBody.synced, false);
+  assert.ok(["ready", "empty", "unavailable"].includes(previewBody.status));
+  if (previewBody.status === "ready") {
+    assert.deepEqual(previewBody.edition.preferences.topics, ["Science"]);
+    assert.ok(previewBody.edition.articles.every((article) => article.matchedTopics.includes("Science")));
+  }
+  assert.equal((await fetch(`${origin}/api/paper?topics=NotARealTopic`)).status, 400);
+  assert.equal((await fetch(`${origin}/api/paper`)).status, 200);
   console.log("Unavailable-storage fallback passed: 200 with validated choices, no false persistence cookie, onboarding renders, invalid input rejected.");
 } finally {
   if (child.exitCode === null) { child.kill(); await once(child, "exit"); }

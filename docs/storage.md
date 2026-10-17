@@ -124,3 +124,21 @@ No live deployment has been verified by the local tests.
 
 After building, run `node tests/preferences-fallback.mjs` to simulate unavailable
 storage under Vercel settings without changing the normal dev server.
+
+## Client-first reading without server storage
+
+`/paper` renders a client shell with no server-side onboarding redirect. It reads
+the validated browser backup before attempting a server preference request. The
+client passes topics, readingMinutes and timezone to `GET /api/paper`. These
+parameters are validated preferences, never reader IDs or archive access tokens.
+
+A valid server profile continues to use the immutable persisted daily edition.
+If no profile is available or storage fails, the API ranks public feed articles
+using the browser choices; absent choices default to World/Technology, 10 minutes,
+UTC. Invalid parameters return 400; feed outages return an explicit empty/retry
+state, never an onboarding redirect. Browser-only results are labeled previews
+and can change on reload. They are not saved to the server archive. Print-to-PDF
+and headline digest work on the displayed preview. AI summaries and recommendation
+learning require server sync; device reading badges are kept locally.
+
+The preference page is `/onboarding`; its Read my paper CTA targets `/paper`.

@@ -1,10 +1,11 @@
 "use client";
 import { useState } from "react";
 
-export function DownloadPdf({ date }: { date: string }) {
+export function DownloadPdf({ date, localOnly = false }: { date: string; localOnly?: boolean }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   async function download() {
+    if (localOnly) { window.print(); return; }
     setBusy(true); setError("");
     try {
       const response = await fetch(`/api/editions/${date}/pdf`, { signal: AbortSignal.timeout(30_000) });
@@ -17,5 +18,5 @@ export function DownloadPdf({ date }: { date: string }) {
     } catch (error) { setError(error instanceof Error ? error.message : "Download failed. Please retry."); }
     finally { setBusy(false); }
   }
-  return <div className="pdf-control"><button className="button" onClick={download} disabled={busy}>{busy ? "Preparing PDF…" : "Download PDF ↓"}</button>{error && <div className="form-error" role="alert"><p>{error}</p><button className="text-button" onClick={() => window.print()}>Print this edition / Save as PDF</button></div>}</div>;
+  return <div className="pdf-control"><button className="button" onClick={download} disabled={busy}>{busy ? "Preparing PDF…" : localOnly ? "Print / Save as PDF" : "Download PDF ↓"}</button>{error && <div className="form-error" role="alert"><p>{error}</p><button className="text-button" onClick={() => window.print()}>Print this edition / Save as PDF</button></div>}</div>;
 }

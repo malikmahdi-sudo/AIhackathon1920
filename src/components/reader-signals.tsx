@@ -5,7 +5,7 @@ type State = { choice: string; bookmark: boolean; read: boolean };
 type Pending = { type: string; durationMs?: number };
 const validState = (v: unknown): v is State => !!v && typeof v === "object" && ["", "like", "dislike", "skip"].includes((v as State).choice) && typeof (v as State).bookmark === "boolean" && typeof (v as State).read === "boolean";
 const validQueue = (v: unknown): v is Pending[] => Array.isArray(v) && v.length <= 3 && v.every((x) => x && ["like", "dislike", "skip", "clear", "click", "reading-time"].includes(x.type) && (x.type !== "reading-time" || (typeof x.durationMs === "number" && x.durationMs >= 1000 && x.durationMs <= 120000)));
-export function ReaderSignals({ date, articleId, editionId, children }: { date: string; articleId: string; editionId: string; children: React.ReactNode }) {
+export function ReaderSignals({ date, articleId, editionId, localOnly = false, children }: { date: string; articleId: string; editionId: string; localOnly?: boolean; children: React.ReactNode }) {
   const container = useRef<HTMLDivElement>(null);
   const key = `morning-paper.story.${editionId}.${articleId}`;
   const state = useRef<State>({ choice: "", bookmark: false, read: false });
@@ -18,7 +18,7 @@ export function ReaderSignals({ date, articleId, editionId, children }: { date: 
     return saveBrowserState(key, state.current);
   }
   async function flush() {
-    if (flushing.current) return;
+    if (localOnly || flushing.current) return;
     flushing.current = true;
     try {
       while (pending.current.length) {
@@ -33,6 +33,7 @@ export function ReaderSignals({ date, articleId, editionId, children }: { date: 
     finally { flushing.current = false; }
   }
   function record(item: Pending) {
+    if (localOnly) { setMessage("Reading state kept in this browser. Learning requires server sync."); return; }
     const group = (type: string) => ["click", "reading-time"].includes(type) ? type : "feedback";
     pending.current = [...pending.current.filter((entry) => group(entry.type) !== group(item.type)), item];
     saveBrowserState(`${key}.pending`, pending.current); void flush();

@@ -5,12 +5,13 @@ import { headlineDigest, type Briefing } from "@/lib/briefing";
 import type { DailyEdition } from "@/types/paper";
 import { readBrowserState, saveBrowserState } from "@/lib/browser-state";
 
-export function DailyBriefing({ edition }: { edition: DailyEdition }) {
+export function DailyBriefing({ edition, localOnly = false }: { edition: DailyEdition; localOnly?: boolean }) {
   const [briefing, setBriefing] = useState<Briefing | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const key = `morning-paper.briefing.${edition.id}`;
   async function generate() {
+    if (localOnly) { setBriefing(headlineDigest(edition, "Original headlines from this browser edition. AI briefing requires server sync.")); return; }
     setLoading(true); setError("");
     try {
       const response = await fetch(`/api/editions/${edition.date}/briefing`, { method: "POST", signal: AbortSignal.timeout(25000) });

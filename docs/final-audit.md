@@ -17,8 +17,9 @@ in this audit. A headline digest is not represented as AI-generated content.
 
 The implemented routes are `/api/preferences`, `/api/recommendations`,
 `/api/signals`, `/api/editions/[date]/pdf`, and `/api/editions/[date]/briefing`.
-Reading itself is the server-rendered `/paper` page; no `/api/paper` or `/api/pdf`
-alias is required by the app. Storage uses Supabase on Vercel; local filesystem
+Reading now uses a client-first `/paper` shell and `/api/paper` endpoint. Browser
+preferences supply a stateless preview if server storage is unavailable. No
+`/api/pdf` alias is required by the app. See storage.md for preview limitations. Storage uses Supabase on Vercel; local filesystem
 storage is explicitly rejected. PDF font reads are read-only and output is in
 memory. All routes catch provider/storage failures; sensitive filesystem errors
 are not returned to clients. Reader and archive pages render a recovery state.

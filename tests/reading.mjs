@@ -16,13 +16,16 @@ test("reading pages save one edition, show archives, and isolate browser profile
   }
   try {
     const anonymous = await fetch(`${origin}/paper`);
-    assert.match(await anonymous.text(), /What sparks your curiosity|NEXT_REDIRECT.*onboarding/);
+    assert.match(await anonymous.text(), /Preparing your morning paper/);
+    assert.equal(anonymous.redirected, false);
     const first = await createReader();
     const headers = { Cookie: first.cookie };
     assert.match(await (await fetch(`${origin}/archives`, { headers })).text(), /A collection starts with one morning/);
-    const paper = await fetch(`${origin}/paper`, { headers });
+    const paper = await fetch(`${origin}/api/paper`, { headers });
     assert.equal(paper.status, 200);
-    assert.match(await paper.text(), /End of your edition/);
+    const paperResult = await paper.json();
+    assert.equal(paperResult.status, "ready");
+    assert.equal(paperResult.synced, true);
     const files = (await readdir("data/editions")).filter((name) => name.startsWith(`${first.id}_`));
     assert.equal(files.length, 1);
     const before = await readFile(path.join("data/editions", files[0]), "utf8");
@@ -31,7 +34,7 @@ test("reading pages save one edition, show archives, and isolate browser profile
     assert.ok((await archive.text()).includes(`/archives/${edition.date}`));
     assert.match(await (await fetch(`${origin}/archives/${edition.date}`, { headers })).text(), /End of your edition/);
     await fetch(`${origin}/api/preferences`, { method: "POST", headers: { ...headers, Origin: origin, "Content-Type": "application/json" }, body: JSON.stringify({ topics: ["Sports"], readingMinutes: 5, timezone: "Asia/Karachi" }) });
-    await fetch(`${origin}/paper`, { headers });
+    await fetch(`${origin}/api/paper`, { headers });
     assert.equal(await readFile(path.join("data/editions", files[0]), "utf8"), before);
     const second = await createReader();
     const privateArchive = await fetch(`${origin}/archives/${edition.date}`, { headers: { Cookie: second.cookie } });
