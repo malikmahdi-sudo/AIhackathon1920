@@ -7,7 +7,7 @@ export function DownloadPdf({ date }: { date: string }) {
   async function download() {
     setBusy(true); setError("");
     try {
-      const response = await fetch(`/api/editions/${date}/pdf`);
+      const response = await fetch(`/api/editions/${date}/pdf`, { signal: AbortSignal.timeout(30_000) });
       if (!response.ok) { const result = await response.json(); throw new Error(result.error); }
       const url = URL.createObjectURL(await response.blob());
       const anchor = document.createElement("a");
@@ -17,5 +17,5 @@ export function DownloadPdf({ date }: { date: string }) {
     } catch (error) { setError(error instanceof Error ? error.message : "Download failed. Please retry."); }
     finally { setBusy(false); }
   }
-  return <div><button className="button" onClick={download} disabled={busy}>{busy ? "Preparing PDF…" : "Download PDF"}</button>{error && <p role="alert" className="form-error">{error}</p>}</div>;
+  return <div className="pdf-control"><button className="button" onClick={download} disabled={busy}>{busy ? "Preparing PDF…" : "Download PDF ↓"}</button>{error && <div className="form-error" role="alert"><p>{error}</p><button className="text-button" onClick={() => window.print()}>Print this edition / Save as PDF</button></div>}</div>;
 }

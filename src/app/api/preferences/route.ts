@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const preferences = await readPreferences(request.cookies.get(READER_COOKIE)?.value);
     return NextResponse.json({ preferences }, { headers: { "Cache-Control": "private, no-store" } });
   } catch {
-    return NextResponse.json({ error: "We couldn’t load your preferences. Please try again." }, { status: 500 });
+    return NextResponse.json({ error: "We couldn’t load your preferences. Please try again." }, { status: 503, headers: { "Cache-Control": "private, no-store" } });
   }
 }
 

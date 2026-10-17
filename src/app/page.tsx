@@ -2,6 +2,8 @@ import { FeatureCard } from "@/components/feature-card";
 import { Masthead } from "@/components/masthead";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   return (
     <div className="paper-shell">
@@ -28,7 +30,7 @@ export default function Home() {
           <div className="feature-grid">
             <FeatureCard number="01 / YOUR PERSPECTIVE" title="Follow your curiosity">Choose the topics you care about. Your interests will shape each day’s edition.</FeatureCard>
             <FeatureCard number="02 / YOUR DAILY EDITION" title="Read at your own pace">Discover stories in a clean reading experience, with original sources a click away.</FeatureCard>
-            <FeatureCard number="03 / YOUR COLLECTION" title="Keep a little perspective">Revisit your saved editions anytime. A classic newspaper PDF is coming next.</FeatureCard>
+            <FeatureCard number="03 / YOUR COLLECTION" title="Keep a little perspective">Revisit your saved editions anytime. Download a classic newspaper PDF, or catch up with a one-minute briefing.</FeatureCard>
           </div>
         </section>
       </main>

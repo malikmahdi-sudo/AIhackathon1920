@@ -1,5 +1,6 @@
 import { ReaderSignals } from "./reader-signals";
 import { DailyBriefing } from "./daily-briefing";
+import { StoryArt } from "./story-art";
 import Link from "next/link";
 import { DownloadPdf } from "./download-pdf";
 import type { DailyEdition } from "@/types/paper";
@@ -18,13 +19,14 @@ export function EditionView({ edition }: { edition: DailyEdition }) {
         <p className="intro">{edition.articles.length} stories selected around {edition.preferences.topics.join(", ")}. About {minutes} minutes to explore.</p>
         <div className="edition-tools"><DownloadPdf date={edition.date} /><Link href="/archives">Browse your editions →</Link><Link href="/onboarding">Refine your interests</Link></div>
       </header>
-      <DailyBriefing key={edition.id} date={edition.date} />
+      <DailyBriefing key={edition.id} edition={edition} />
       {edition.sourceNotice && <p className="edition-notice">{edition.sourceNotice}</p>}
-      <p className="story-reason">Likes, skips, clicks, and time viewing stories help shape future editions. Skipping hides a story for this visit only; your saved paper and PDF stay unchanged.</p>
+      <p className="story-reason">Likes, skips, clicks, and time viewing stories help shape future editions. Skips and bookmarks are remembered on this device; your saved paper and PDF stay unchanged.</p>
       <div className="reading-grid">
         {edition.articles.map((article, index) => (
           <article className={`story ${index === 0 ? "lead-story" : ""}`} key={article.id}>
-            <ReaderSignals date={edition.date} articleId={article.id}>
+            <ReaderSignals key={`${edition.id}:${article.id}`} date={edition.date} articleId={article.id} editionId={edition.id}>
+            <StoryArt topic={article.matchedTopics[0]} index={index} />
             <p className="eyebrow">{String(index + 1).padStart(2, "0")} / {article.matchedTopics.join(" · ")}</p>
             <h2><a href={article.url} target="_blank" rel="noopener noreferrer">{article.title}</a></h2>
             <p className="story-meta">{article.source} · <time dateTime={article.publishedAt}>{new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: edition.preferences.timezone }).format(new Date(article.publishedAt))}</time></p>

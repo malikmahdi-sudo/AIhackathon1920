@@ -15,7 +15,7 @@ export async function createNewspaperPdf(edition: DailyEdition): Promise<Uint8Ar
   doc.setSubject(`Saved edition ${edition.id}`);
   doc.setCreationDate(new Date(edition.generatedAt));
   const W = 595.28, H = 841.89, margin = 38, gap = 24, width = (W - margin * 2 - gap) / 2;
-  const ink = rgb(.12, .13, .12);
+  const ink = rgb(.059, .09, .165);
   let page = doc.addPage([W, H]);
   let column = 0, y = 680;
   const x = () => margin + column * (width + gap);
@@ -23,7 +23,7 @@ export async function createNewspaperPdf(edition: DailyEdition): Promise<Uint8Ar
     page.drawText(value, { x: px, y: py, size, font, color: ink });
   }
   function header() {
-    text("THE MORNING PAPER", margin, H - 65, 29, bold);
+    text("THE DAILY MORNING PAPER", margin, H - 65, 25, bold);
     text("A little perspective, every day.", margin, H - 85, 10);
     text(edition.date, W - 110, H - 85, 10);
     page.drawLine({ start: { x: margin, y: H - 100 }, end: { x: W - margin, y: H - 100 }, thickness: 2, color: ink });

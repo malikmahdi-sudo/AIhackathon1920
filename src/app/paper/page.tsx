@@ -5,15 +5,18 @@ import { aggregateNews } from "@/lib/news/service";
 import { editions } from "@/lib/editions/service";
 import { Masthead } from "@/components/masthead";
 import { EditionView } from "@/components/edition-view";
+import { StorageUnavailable } from "@/components/storage-unavailable";
 
 export const runtime = "nodejs";
 
 export default async function PaperPage() {
-  const preferences = await currentPreferences();
+  let preferences;
+  try { preferences = await currentPreferences(); } catch { return <StorageUnavailable />; }
   if (!preferences) redirect("/onboarding");
-  const result = await editions.today(preferences, aggregateNews);
+  let result;
+  try { result = await editions.today(preferences, aggregateNews); } catch { return <StorageUnavailable />; }
   return (
-    <div className="paper-shell"><Masthead /><main id="main-content">
+    <div className="paper-shell"><Masthead date={result.status === "ready" ? result.edition.date : undefined} timezone={preferences.timezone} /><main id="main-content">
       {result.status === "ready" ? <EditionView edition={result.edition} /> : (
         <section className="empty-edition">
           <p className="eyebrow">A little patience, a fresh perspective</p>

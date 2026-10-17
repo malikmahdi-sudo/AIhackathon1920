@@ -31,3 +31,13 @@ Live Supabase validation remains pending a configured project.
 Run npm test for scoring/validation checks. With the local dev server running, run
 `node --test tests/signals.mjs` for ownership, duplicate handling, undo, and immutable
 edition checks.
+
+## Browser resilience and reading badges
+
+Read, skipped and bookmark badges are stored per edition/article in localStorage.
+Bookmarks are device-only and do not change ranking. Explicit read sends the
+existing click signal; 20 seconds of visible reading sends reading-time. Feedback
+uses a bounded retry queue (latest feedback, click and time per story). It retries
+on reconnect or revisit; unacknowledged feedback is not claimed as server-saved.
+Local storage failures leave visit-only state. Clearing browser data removes it.
+Skipped articles remain in the immutable edition and are restored in print output.

@@ -4,13 +4,16 @@ import { currentPreferences } from "@/lib/preference-store";
 import { editions } from "@/lib/editions/service";
 import { Masthead } from "@/components/masthead";
 import { displayDate } from "@/components/edition-view";
+import { StorageUnavailable } from "@/components/storage-unavailable";
 
 export const runtime = "nodejs";
 
 export default async function ArchivesPage() {
-  const preferences = await currentPreferences();
+  let preferences;
+  try { preferences = await currentPreferences(); } catch { return <StorageUnavailable />; }
   if (!preferences) redirect("/onboarding");
-  const papers = await editions.list(preferences.id);
+  let papers;
+  try { papers = await editions.list(preferences.id); } catch { return <StorageUnavailable />; }
   return <div className="paper-shell"><Masthead /><main id="main-content" className="archive-page">
     <p className="eyebrow">The collection</p><h1>Your mornings, kept.</h1>
     <p className="intro">Every edition you open is saved here. Return to a story, revisit a thought, or pick up where you left off.</p>

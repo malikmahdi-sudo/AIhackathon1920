@@ -24,7 +24,7 @@ export function OnboardingForm({ initial }: { initial: ReaderPreferences | null 
       try { backup = readPreferenceBackup(window.localStorage); } catch {}
       let preferences = initial;
       try {
-        const response = await fetch("/api/preferences", { cache: "no-store" });
+        const response = await fetch("/api/preferences", { cache: "no-store", signal: AbortSignal.timeout(10000) });
         if (!response.ok) throw new Error("Storage unavailable");
         preferences = (await response.json()).preferences;
       } catch { preferences = null; }
@@ -54,7 +54,7 @@ export function OnboardingForm({ initial }: { initial: ReaderPreferences | null 
     const backedUp = backupChoices(true);
     try {
       const response = await fetch("/api/preferences", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST", signal: AbortSignal.timeout(15000), headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ topics, readingMinutes, timezone }),
       });
       const result = await response.json();
