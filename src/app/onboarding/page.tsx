@@ -5,7 +5,9 @@ import { currentPreferences } from "@/lib/preference-store";
 export const runtime = "nodejs";
 
 export default async function OnboardingPage() {
-  const preferences = await currentPreferences();
+  // Render the form even when the storage provider is unavailable so the browser
+  // can restore its backup instead of showing a server error page.
+  const preferences = await currentPreferences().catch(() => null);
   return (
     <div className="paper-shell">
       <Masthead />

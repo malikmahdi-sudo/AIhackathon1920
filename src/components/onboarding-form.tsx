@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { READING_TIMES, TOPICS, validatePreferences } from "@/lib/preferences";
 import type { ReaderPreferences } from "@/types/paper";
+import { readPreferenceBackup, writePreferenceBackup } from "@/lib/preference-backup";
 
 export function OnboardingForm({ initial }: { initial: ReaderPreferences | null }) {
   const [topics, setTopics] = useState<string[]>(initial?.topics ?? []);
@@ -12,6 +13,37 @@ export function OnboardingForm({ initial }: { initial: ReaderPreferences | null 
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [browserOnly, setBrowserOnly] = useState(false);
+  const [notice, setNotice] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    async function restore() {
+      let backup = null;
+      try { backup = readPreferenceBackup(window.localStorage); } catch {}
+      let preferences = initial;
+      try {
+        const response = await fetch("/api/preferences", { cache: "no-store" });
+        if (!response.ok) throw new Error("Storage unavailable");
+        preferences = (await response.json()).preferences;
+      } catch { preferences = null; }
+      if (!active) return;
+      const restored = backup?.pending || !preferences ? backup?.preferences ?? preferences : preferences;
+      if (restored) {
+        setTopics(restored.topics); setReadingMinutes(restored.readingMinutes); setTimezone(restored.timezone);
+        if (backup?.pending || !preferences) setNotice("Restored your browser backup. Save to retry syncing your choices.");
+      }
+      setLoading(false);
+    }
+    void restore();
+    return () => { active = false; };
+  }, [initial]);
+
+  function backupChoices(pending: boolean) {
+    try { return writePreferenceBackup(window.localStorage, { topics, readingMinutes, timezone }, pending); }
+    catch { return false; }
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -19,31 +51,46 @@ export function OnboardingForm({ initial }: { initial: ReaderPreferences | null 
     try { validatePreferences({ topics, readingMinutes, timezone }); }
     catch (error) { setError((error as Error).message); return; }
     setSaving(true);
+    const backedUp = backupChoices(true);
     try {
       const response = await fetch("/api/preferences", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ topics, readingMinutes, timezone }),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "Please try again.");
+      if (!response.ok) {
+        if (response.status < 500) { setError(result.error ?? "Please try again."); return; }
+        throw new Error("Server unavailable");
+      }
+      if (result.persisted === false && !backedUp) {
+        setError("Server storage and browser storage are unavailable. Your choices are still in this form; please retry."); return;
+      }
+      setBrowserOnly(result.persisted === false);
+      if (result.persisted !== false) backupChoices(false);
       setSaved(true);
-    } catch (error) { setError(error instanceof Error ? error.message : "We couldn’t save. Please try again."); }
+    } catch {
+      if (backedUp) { setBrowserOnly(true); setSaved(true); }
+      else setError("We couldn’t save to the server or this browser. Your choices are still here; please retry.");
+    }
     finally { setSaving(false); }
   }
 
   if (saved) return (
     <section className="saved-card" aria-labelledby="saved-title">
-      <p className="eyebrow" role="status">Preferences saved</p>
+      <p className="eyebrow" role="status">{browserOnly ? "Saved in this browser" : "Preferences saved"}</p>
       <h2 id="saved-title">Your perspective is taking shape.</h2>
       <p>You’re following <strong>{topics.join(", ")}</strong>.</p>
       <p>{readingMinutes} minutes each morning · {timezone}</p>
-      <p className="muted">Your choices will guide your next new edition. Any paper already saved today stays in your collection as it is.</p>
-      <div className="form-actions"><Link className="button" href="/paper" prefetch={false}>Read my paper →</Link><button className="text-button" onClick={() => setSaved(false)}>Edit preferences</button></div>
+      <p className="muted">{browserOnly ? "Your choices are backed up on this device. Server storage is unavailable, so sync them before opening your paper. Clearing browser storage removes this backup." : "Your choices will guide your next new edition. Any paper already saved today stays in your collection as it is."}</p>
+      <div className="form-actions">{!browserOnly && <Link className="button" href="/paper" prefetch={false}>Read my paper →</Link>}<button className="text-button" onClick={() => setSaved(false)}>{browserOnly ? "Edit or retry sync" : "Edit preferences"}</button></div>
     </section>
   );
 
+  if (loading) return <p role="status">Loading your preferences…</p>;
+
   return (
     <form onSubmit={submit} className="preferences-form">
+      {notice && <p role="status">{notice}</p>}
       <fieldset disabled={saving} aria-describedby="topics-hint">
         <legend>01 / Pick your interests</legend>
         <p id="topics-hint" className="field-hint">Choose 1–5 topics. {topics.length} of 5 selected.</p>

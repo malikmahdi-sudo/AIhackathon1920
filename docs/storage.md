@@ -98,3 +98,25 @@ testing PostgreSQL/RLS against a real Supabase project. CI needs no database sec
 
 References: [Supabase Data API security](https://supabase.com/docs/guides/api/securing-your-api),
 [Supabase upserts](https://supabase.com/docs/reference/javascript/upsert).
+
+## Browser preference backup
+
+Onboarding backs up validated choices in localStorage. Pending browser choices
+take precedence on reload; otherwise server preferences are preferred. If the
+server read fails or returns no profile, the browser backup restores the form.
+Blocked/quota-limited browser storage is handled without crashing.
+
+When a server read or write fails during save, the API returns HTTP 200 with
+`persisted: false` and the validated choices. It does not issue a new reader
+cookie. The UI confirms browser-only saving only after localStorage succeeds,
+and offers editing/retry instead of sending readers into an unavailable paper.
+A successful server save returns `persisted: true` and the normal reader cookie.
+Validation and origin failures remain errors.
+
+This preserves onboarding choices during outages; it does not replace Supabase
+for editions, archives, PDFs, or signals on Vercel. Configure `STORAGE_DRIVER=supabase`,
+`SUPABASE_URL`, and `SUPABASE_SERVICE_ROLE_KEY`, apply both migrations, and redeploy.
+No live deployment has been verified by the local tests.
+
+After building, run `node tests/preferences-fallback.mjs` to simulate unavailable
+storage under Vercel settings without changing the normal dev server.
