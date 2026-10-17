@@ -88,6 +88,9 @@ button:disabled { cursor: wait; opacity: .65; }
 .edition-heading > .eyebrow, .archive-page > .eyebrow { color: var(--accent); margin-bottom: 20px; line-height: 1.8; }
 .edition-heading .intro { max-width: 680px; margin-bottom: 20px; }
 .edition-tools { display: flex; flex-wrap: wrap; gap: 24px; font-size: 13px; }
+.reader-feedback { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.reader-feedback button { border: 1px solid var(--line); background: transparent; color: var(--ink); padding: 8px 12px; font-size: 12px; }
+.reader-feedback button[aria-pressed="true"] { background: var(--ink); color: white; }
 .edition-notice { padding: 14px 18px; border-left: 3px solid var(--accent); background: #eee7d9; font-size: 13px; line-height: 1.7; }
 .reading-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 3px solid var(--ink); column-gap: 40px; }
 .story { padding: 30px 0; border-bottom: 1px solid var(--line); min-width: 0; }

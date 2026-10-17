@@ -52,7 +52,7 @@ tests/             Offline engine tests and live integration checks
 - [x] 3. RSS aggregation and relevance scoring
 - [x] 4. Daily reading interface and historical editions
 - [x] 5. Traditional newspaper PDF from the same saved edition
-- [ ] 6. Reader signals and adaptive recommendations
+- [x] 6. Reader signals and adaptive recommendations
 - [ ] 7. Architecture diagram and final documentation
 
 Readers can select 1–5 topics,
@@ -108,8 +108,7 @@ This is an on-demand recommendation preview; it does not save a daily edition ye
 - Public feed results are cached in memory for 15 minutes, concurrent refreshes are
   shared, and failed refreshes can use a cache up to 6 hours old marked `stale`.
   Failures retry after 60 seconds. Restarting the server clears the cache.
-- Personalized API responses are private and never cached. Learning from reader
-  signals will be added in Step 6; ranking currently uses explicit preferences only.
+- Personalized API responses are private and never cached. Reader signals now adjust future rankings within selected interests; see [learning](docs/learning.md).
 
 Run deterministic tests without a server or internet:
 
@@ -174,3 +173,6 @@ navigation, unchanged editions after preference edits, and cross-reader isolatio
 
 Pause after each working milestone, review and commit its files, then push to
 `origin main` before starting the next milestone. Do not squash milestone history.
+
+Reader feedback and adaptive scoring are documented in [learning setup](docs/learning.md).
+Supabase users must apply the second migration before collecting signals.

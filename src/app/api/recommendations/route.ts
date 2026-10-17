@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { currentPreferences } from "@/lib/preference-store";
 import { aggregateNews } from "@/lib/news/service";
+import { readSignals } from "@/lib/signal-store";
+import { topicWeights } from "@/lib/learning";
 import { rankArticles } from "@/lib/news/rank";
 
 export const runtime = "nodejs";
@@ -15,7 +17,7 @@ export async function GET() {
       return NextResponse.json({ error: "News sources are temporarily unavailable. Please try again shortly.", articles: [], feeds }, { status: 503, headers });
     }
     const now = Date.now();
-    const ranked = rankArticles(articles, preferences, now);
+    const ranked = rankArticles(articles, preferences, now, topicWeights(await readSignals(preferences.id), now));
     return NextResponse.json({
       generatedAt: new Date(now).toISOString(),
       date: new Intl.DateTimeFormat("en-CA", { timeZone: preferences.timezone, year: "numeric", month: "2-digit", day: "2-digit" }).format(now),

@@ -1,3 +1,4 @@
+import { ReaderSignals } from "./reader-signals";
 import Link from "next/link";
 import { DownloadPdf } from "./download-pdf";
 import type { DailyEdition } from "@/types/paper";
@@ -17,15 +18,18 @@ export function EditionView({ edition }: { edition: DailyEdition }) {
         <div className="edition-tools"><DownloadPdf date={edition.date} /><Link href="/archives">Browse your editions →</Link><Link href="/onboarding">Refine your interests</Link></div>
       </header>
       {edition.sourceNotice && <p className="edition-notice">{edition.sourceNotice}</p>}
+      <p className="story-reason">Likes, skips, clicks, and time viewing stories help shape future editions. Skipping hides a story for this visit only; your saved paper and PDF stay unchanged.</p>
       <div className="reading-grid">
         {edition.articles.map((article, index) => (
           <article className={`story ${index === 0 ? "lead-story" : ""}`} key={article.id}>
+            <ReaderSignals date={edition.date} articleId={article.id}>
             <p className="eyebrow">{String(index + 1).padStart(2, "0")} / {article.matchedTopics.join(" · ")}</p>
             <h2><a href={article.url} target="_blank" rel="noopener noreferrer">{article.title}</a></h2>
             <p className="story-meta">{article.source} · <time dateTime={article.publishedAt}>{new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: edition.preferences.timezone }).format(new Date(article.publishedAt))}</time></p>
             <p className="story-summary">{article.summary || "Read the full story at the original publisher."}</p>
             <p className="story-reason">{article.reason}</p>
             <a className="source-link" href={article.url} target="_blank" rel="noopener noreferrer">Read at {article.source} <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a>
+            </ReaderSignals>
           </article>
         ))}
       </div>

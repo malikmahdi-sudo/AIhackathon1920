@@ -3,14 +3,15 @@ import { MAX_AGE_MS } from "./normalize";
 
 export type RankedArticle = Article & { score: number; matchedTopics: string[]; reason: string; estimatedReadingMinutes: number };
 
-export function rankArticles(articles: Article[], preferences: Pick<ReaderPreferences, "topics" | "readingMinutes">, now = Date.now()): RankedArticle[] {
+export function rankArticles(articles: Article[], preferences: Pick<ReaderPreferences, "topics" | "readingMinutes">, now = Date.now(), weights: Record<string, number> = {}): RankedArticle[] {
   const candidates = articles.flatMap((article) => {
     const age = now - Date.parse(article.publishedAt);
     const matchedTopics = article.topics.filter((topic) => preferences.topics.includes(topic));
     if (!matchedTopics.length || !Number.isFinite(age) || age < -300_000 || age > MAX_AGE_MS) return [];
+    const learning = matchedTopics.reduce((sum, topic) => sum + (weights[topic] ?? 0), 0);
     const freshness = 20 * Math.exp(-Math.max(0, age) / (48 * 60 * 60_000));
-    return [{ ...article, score: Math.round((matchedTopics.length * 100 + freshness) * 100) / 100, matchedTopics,
-      reason: `Matches ${matchedTopics.join(" and ")}`, estimatedReadingMinutes: 3 }];
+    return [{ ...article, score: Math.round((matchedTopics.length * 100 + freshness + learning) * 100) / 100, matchedTopics,
+      reason: `Matches ${matchedTopics.join(" and ")}${learning > 0 ? "; informed by your reading" : ""}`, estimatedReadingMinutes: 3 }];
   });
   const selected: RankedArticle[] = [];
   const sources = new Map<string, number>();

@@ -15,13 +15,13 @@ export function createEditionStore(storage: Storage) {
   const read = storage.getEdition;
   const list = storage.listEditions;
 
-  async function today(preferences: ReaderPreferences, aggregate: ReturnType<typeof createAggregator>, now = Date.now()): Promise<EditionResult> {
+  async function today(preferences: ReaderPreferences, aggregate: ReturnType<typeof createAggregator>, now = Date.now(), weights: Record<string, number> = {}): Promise<EditionResult> {
     const date = localEditionDate(now, preferences.timezone);
     const existing = await read(preferences.id, date);
     if (existing) return { status: "ready", edition: existing };
     const { articles, feeds } = await aggregate();
     if (feeds.every((feed) => feed.status === "unavailable")) return { status: "unavailable" };
-    const selected = rankArticles(articles, preferences, now);
+    const selected = rankArticles(articles, preferences, now, weights);
     if (!selected.length) return { status: "empty" };
     const edition: DailyEdition = {
       id: randomUUID(), readerId: preferences.id, date, generatedAt: new Date(now).toISOString(), articles: selected,
