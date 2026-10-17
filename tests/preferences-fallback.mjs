@@ -25,6 +25,9 @@ try {
   const response = await fetch(`${origin}/api/preferences`, { method: "POST", headers, body: JSON.stringify(preferences) });
   assert.equal(response.status, 200);
   const body = await response.json();
+  assert.equal(body.success, true);
+  assert.equal(body.synced, false);
+  assert.equal(body.message, "Saved locally");
   assert.equal(body.persisted, false);
   assert.deepEqual(body.preferences, preferences);
   assert.equal(response.headers.get("set-cookie"), null);

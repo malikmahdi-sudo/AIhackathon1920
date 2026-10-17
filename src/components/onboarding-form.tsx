@@ -62,11 +62,12 @@ export function OnboardingForm({ initial }: { initial: ReaderPreferences | null 
         if (response.status < 500) { setError(result.error ?? "Please try again."); return; }
         throw new Error("Server unavailable");
       }
-      if (result.persisted === false && !backedUp) {
+      const unsynced = result.synced === false || result.persisted === false;
+      if (unsynced && !backedUp) {
         setError("Server storage and browser storage are unavailable. Your choices are still in this form; please retry."); return;
       }
-      setBrowserOnly(result.persisted === false);
-      if (result.persisted !== false) backupChoices(false);
+      setBrowserOnly(unsynced);
+      if (!unsynced) backupChoices(false);
       setSaved(true);
     } catch {
       if (backedUp) { setBrowserOnly(true); setSaved(true); }
@@ -81,8 +82,8 @@ export function OnboardingForm({ initial }: { initial: ReaderPreferences | null 
       <h2 id="saved-title">Your perspective is taking shape.</h2>
       <p>You’re following <strong>{topics.join(", ")}</strong>.</p>
       <p>{readingMinutes} minutes each morning · {timezone}</p>
-      <p className="muted">{browserOnly ? "Your choices are backed up on this device. Server storage is unavailable, so sync them before opening your paper. Clearing browser storage removes this backup." : "Your choices will guide your next new edition. Any paper already saved today stays in your collection as it is."}</p>
-      <div className="form-actions">{!browserOnly && <Link className="button" href="/paper" prefetch={false}>Read my paper →</Link>}<button className="text-button" onClick={() => setSaved(false)}>{browserOnly ? "Edit or retry sync" : "Edit preferences"}</button></div>
+      <p className="muted">{browserOnly ? "Your choices are saved on this device. Server sync is pending. Clearing browser storage removes this backup." : "Your choices will guide your next new edition. Any paper already saved today stays in your collection as it is."}</p>
+      <div className="form-actions"><Link className="button" href="/paper" prefetch={false}>Read my paper →</Link><button className="text-button" onClick={() => setSaved(false)}>{browserOnly ? "Edit or retry sync" : "Edit preferences"}</button></div>
     </section>
   );
 
@@ -91,6 +92,7 @@ export function OnboardingForm({ initial }: { initial: ReaderPreferences | null 
   return (
     <form onSubmit={submit} className="preferences-form">
       {notice && <p role="status">{notice}</p>}
+      {topics.length > 0 && <div className="form-actions"><Link className="button" href="/paper" prefetch={false}>Read my paper →</Link></div>}
       <fieldset disabled={saving} aria-describedby="topics-hint">
         <legend>01 / Pick your interests</legend>
         <p id="topics-hint" className="field-hint">Choose 1–5 topics. {topics.length} of 5 selected.</p>

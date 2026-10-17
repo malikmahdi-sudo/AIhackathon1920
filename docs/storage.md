@@ -109,7 +109,11 @@ Blocked/quota-limited browser storage is handled without crashing.
 When a server read or write fails during save, the API returns HTTP 200 with
 `persisted: false` and the validated choices. It does not issue a new reader
 cookie. The UI confirms browser-only saving only after localStorage succeeds,
-and offers editing/retry instead of sending readers into an unavailable paper.
+and always offers Read my paper alongside editing/retry. The API includes
+`success: true, synced: false, message: "Saved locally"` for the browser fallback.
+The server cannot write localStorage itself: the client confirms that backup.
+The reading link is also available for restored or locally selected preferences.
+Navigation alone does not sync preferences or make server storage available.
 A successful server save returns `persisted: true` and the normal reader cookie.
 Validation and origin failures remain errors.
 

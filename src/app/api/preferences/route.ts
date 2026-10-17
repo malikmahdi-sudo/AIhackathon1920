@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
   try {
     const existing = await readPreferences(request.cookies.get(READER_COOKIE)?.value);
     const preferences = await savePreferences(existing?.id ?? randomUUID(), input);
-    const response = NextResponse.json({ preferences, persisted: true }, { headers: { "Cache-Control": "private, no-store" } });
+    const response = NextResponse.json({ success: true, synced: true, preferences, persisted: true }, { headers: { "Cache-Control": "private, no-store" } });
     response.cookies.set(READER_COOKIE, preferences.id, {
       httpOnly: true, sameSite: "lax", secure: request.nextUrl.protocol === "https:",
       path: "/", maxAge: 60 * 60 * 24 * 365,
@@ -41,6 +41,6 @@ export async function POST(request: NextRequest) {
   } catch {
     // The client must confirm its browser backup before reporting a saved state.
     // Do not issue a reader cookie for a profile that does not exist in storage.
-    return NextResponse.json({ preferences: input, persisted: false, storage: "browser", message: "Server storage is unavailable. Keep these choices in this browser and retry syncing later." }, { headers: { "Cache-Control": "private, no-store" } });
+    return NextResponse.json({ success: true, synced: false, message: "Saved locally", preferences: input, persisted: false, storage: "browser" }, { headers: { "Cache-Control": "private, no-store" } });
   }
 }
