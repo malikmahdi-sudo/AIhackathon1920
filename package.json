@@ -33,7 +33,7 @@
     "eslint-config-next": "16.4.2",
     "tailwindcss": "4.3.3",
     "tsx": "^4.23.15",
-    "typescript": "^5.7.0"
+    "typescript": "^7.0.2"
   },
   "engines": {
     "node": ">=22.0.0"
