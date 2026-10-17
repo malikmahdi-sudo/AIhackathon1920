@@ -4,6 +4,13 @@
 
 A personal daily newspaper for NaSCon '26, built one committed milestone at a time.
 
+## Architecture and demonstration
+
+See the [architecture diagram](docs/architecture.md), [five-minute demo guide](docs/demo.md),
+[PDF implementation](docs/pdf.md), and [learning design](docs/learning.md).
+The app implements rule-based adaptive personalization; it does not yet use LLM synthesis.
+CI builds verified artifacts; automatic hosting deployment remains unconfigured.
+
 ## Run locally
 
 Requires Node.js 22+ and npm. Developed with Node.js 24.
@@ -35,11 +42,12 @@ for automated checks, release artifacts, and the remaining hosting setup.
 ```text
 src/
   app/             App Router pages, root layout, global styles
-  components/      Masthead, feature card, and interactive onboarding form
-  lib/             Preference validation and server-only JSON persistence
+  components/      Onboarding, newspaper, PDF download, and reader feedback
+  lib/             Services, preference validation, and adaptive learning
     news/          Feed sources, parsing, caching, deduplication, and ranking
     editions/      Immutable daily snapshots and archive storage
     storage/       Local JSON and Supabase adapters behind one interface
+    pdf/           Newspaper PDF rendering with embedded fonts
   types/paper.ts   Shared preference, article, edition, and signal types
 data/              Local reader preferences and editions (ignored by Git)
 tests/             Offline engine tests and live integration checks
@@ -53,7 +61,7 @@ tests/             Offline engine tests and live integration checks
 - [x] 4. Daily reading interface and historical editions
 - [x] 5. Traditional newspaper PDF from the same saved edition
 - [x] 6. Reader signals and adaptive recommendations
-- [ ] 7. Architecture diagram and final documentation
+- [x] 7. Architecture diagram and final documentation
 
 Readers can select 1–5 topics,
 a 5/10/20-minute reading time, and a timezone, then save or edit their choices.
@@ -152,7 +160,7 @@ review each publisher's feed terms before public/commercial deployment.
 - Empty matches or total source outages are never saved as editions. Loading, empty,
   retry, storage-error, and missing-archive states are included.
 - The reading page presents publisher excerpts and opens original articles in new
-  tabs; PDF downloads and reader-signal tracking arrive in the following milestones.
+  tabs; PDF downloads and reader-signal controls use the same saved edition.
 
 ```sh
 npm run test:editions

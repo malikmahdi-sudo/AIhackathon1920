@@ -6,7 +6,7 @@
 and manual dispatch. GitHub-hosted Ubuntu uses Node.js 24 and `npm ci` with the lockfile.
 
 1. ESLint.
-2. Deterministic RSS/ranking, edition, and storage-adapter tests (no publisher network required).
+2. Deterministic RSS/ranking, edition, storage-adapter, PDF, and learning tests (no publisher network required).
 3. Production build and TypeScript checks.
 4. Standalone release packaging, including CSS assets and excluding `.env` files and reader data.
 5. Production smoke test on port 3100: homepage/CSS, onboarding, cookie-based preference
@@ -26,8 +26,8 @@ updates weekly; it does not automatically merge them.
 - Successful `main` run → Artifacts: download the verified release for that commit.
 - Build metadata: `BUILD-INFO.json` records commit, platform, Node version, and build time.
 
-The workflow is not verified on GitHub until it has been pushed and the first run
-has succeeded. Local test success alone is not a green GitHub check.
+The initial CI run succeeded on GitHub. Verify the run for each new submitted commit;
+a previous green run or local test success does not verify a later change.
 
 ## Reproduce locally
 

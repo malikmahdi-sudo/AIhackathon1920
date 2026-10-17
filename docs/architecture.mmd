@@ -1,0 +1,26 @@
+flowchart TD
+  Reader[Reader browser] --> UI[Next.js App Router: onboarding, paper, archives]
+  UI --> Identity[HttpOnly reader cookie]
+  Identity --> Preferences[Preference service]
+  Identity --> Editions[Daily edition service]
+  Publishers[BBC, Guardian, Dawn RSS] --> Fetch[Bounded fetch and feed cache]
+  Fetch --> Normalize[Parse, validate, deduplicate]
+  Normalize --> Rank[Interest, freshness and diversity scoring]
+  Preferences --> Rank
+  UI --> Signals[Validated clicks, feedback and visible reading time]
+  Signals --> SignalStore[Signal persistence: local JSON or Supabase]
+  SignalStore --> Learning[Decayed and bounded topic weights]
+  Learning --> Rank
+  Rank -->|Only when today's edition is absent| Editions
+  Editions --> Storage[Storage interface]
+  Preferences --> Storage
+  Storage --> Local[Local JSON: development default]
+  Storage --> Cloud[Supabase PostgreSQL: configured deployment]
+  Editions --> Snapshot[Immutable daily edition]
+  Snapshot --> Reading[Web reading and archive view]
+  Snapshot --> PDF[pdf-lib newspaper with embedded fonts]
+  Reading --> Reader
+  PDF --> Download[Private PDF download]
+  Download --> Reader
+  Git[GitHub push or pull request] --> CI[Install, lint, tests, build, smoke test]
+  CI --> Artifact[Verified Linux release artifact on main]

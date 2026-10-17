@@ -37,7 +37,8 @@ serialized preference updates. It is not a fallback for an unavailable cloud dat
 
 1. Create your own Supabase project (the Free plan can be used for this MVP).
 2. In its SQL editor, run `supabase/migrations/202610170001_storage.sql` once.
-   Alternatively apply it with your normal Supabase migration workflow.
+   Then run `supabase/migrations/202610170002_signals.sql` for reader learning.
+   Alternatively apply both with your normal Supabase migration workflow.
 3. Ensure the Data API is enabled for the `public` schema. Set these server-only
    variables in `.env.local` for local cloud testing, or Vercel Project Settings →
    Environment Variables for Preview/Production:
