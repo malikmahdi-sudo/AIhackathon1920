@@ -2,7 +2,28 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { parseSignal, topicWeights, type LearningSignal } from "../src/lib/learning";
 import { rankArticles } from "../src/lib/news/rank";
+import { browserTopicWeights, saveBrowserSignal } from "../src/lib/browser-learning";
 const now = Date.parse("2026-10-17T06:00:00Z");
+test("browser learning replaces feedback and tolerates corrupt or unavailable localStorage", () => {
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, "localStorage");
+  let stored = "";
+  Object.defineProperty(globalThis, "localStorage", { configurable: true, value: { getItem: () => stored, setItem: (_key: string, value: string) => { stored = value; } } });
+  try {
+    assert.equal(saveBrowserSignal("2026-10-17", "test", "like", ["Science"]), true);
+    assert.ok(browserTopicWeights().Science > 7.9);
+    saveBrowserSignal("2026-10-17", "test", "dislike", ["Science"]);
+    assert.ok(browserTopicWeights().Science < -7.9);
+    assert.equal(JSON.parse(stored).length, 1);
+    stored = "not json";
+    assert.deepEqual(browserTopicWeights(), {});
+    Object.defineProperty(globalThis, "localStorage", { configurable: true, get() { throw new Error("Blocked"); } });
+    assert.deepEqual(browserTopicWeights(), {});
+    assert.equal(saveBrowserSignal("2026-10-17", "test", "like", ["Science"]), false);
+  } finally {
+    if (descriptor) Object.defineProperty(globalThis, "localStorage", descriptor);
+    else Reflect.deleteProperty(globalThis, "localStorage");
+  }
+});
 test("signals validate and feedback replaces a common key", () => {
   assert.equal(parseSignal({ date: "2026-10-17", articleId: "abc", type: "like" }).kind, "feedback");
   assert.equal(parseSignal({ date: "2026-10-17", articleId: "abc", type: "dislike" }).value, -8);

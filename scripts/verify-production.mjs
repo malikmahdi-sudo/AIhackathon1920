@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 
 // Native Node.js fetch. Creates one QA profile if persistence is configured.
 // Never logs cookies, credentials, response bodies or protection tokens.
-const target = new URL(process.env.PRODUCTION_URL || "https://a-ihackathon1920-git-main-malikmahdi-sudo.vercel.app/");
+const target = new URL(process.env.PRODUCTION_URL || "https://a-ihackathon1920.vercel.app/");
 const origin = target.origin;
 const results = [];
 const cookieJar = new Map();
@@ -56,7 +56,8 @@ await check("POST /api/preferences", async () => {
   status(response); const data = await json(response);
   assert.deepEqual(data.preferences?.topics, ["Technology", "World"]);
   synced = data.synced === true || data.persisted === true;
-  return synced ? undefined : { limited: true, message: "200 fallback; server persistence unavailable (fetch cannot save browser localStorage)" };
+  assert.equal(data.success, true);
+  return { message: synced ? "200; local server profile" : "200; client-owned preference contract verified" };
 });
 await check("GET /api/paper?topics=Technology,World", async () => {
   const response = await request("/api/paper?topics=Technology,World&readingMinutes=10&timezone=Asia%2FKarachi");
@@ -68,29 +69,24 @@ await check("GET /api/paper?topics=Technology,World", async () => {
   for (const article of edition.articles) {
     assert.equal(typeof article.id, "string"); assert.equal(typeof article.title, "string"); assert.match(article.url, /^https?:\/\//);
   }
-  return { limited: !synced, message: `200; ${edition.articles.length} articles; ${synced ? "persisted edition" : "browser preview"}` };
+  return { message: `200; ${edition.articles.length} articles; ${synced ? "persisted edition" : "browser preview"}` };
 });
 await check("POST /api/signals", async () => {
-  if (!edition || !synced) {
-    const response = await request("/api/signals", { articleId: "test-1", action: "like" });
-    status(response, 400); assert.equal(typeof (await json(response)).error, "string");
-    return { limited: true, message: "400 safely rejects incomplete mock; real learning requires a persisted reader-owned edition" };
-  }
-  const response = await request("/api/signals", { date: edition.date, articleId: edition.articles[0].id, type: "like" });
-  status(response); assert.equal((await json(response)).saved, true);
+  const response = await request("/api/signals", { articleId: "test-1", action: "like" });
+  status(response); const data = await json(response);
+  assert.equal(data.success, true); assert.equal(data.message, "Signal logged locally");
+  assert.equal(data.synced, false);
+  return { message: "200; client-owned signal acknowledged (not a server persistence claim)" };
 });
-await check("GET /api/editions/[date]/pdf", async () => {
-  const response = await request(`/api/editions/${edition?.date || "2026-10-17"}/pdf`);
-  if (!edition || !synced) {
-    assert.ok([401, 404, 503].includes(response.status), `Unexpected PDF failure HTTP ${response.status}`);
-    assert.equal(typeof (await json(response)).error, "string");
-    return { limited: true, message: `${response.status}; controlled response, PDF needs a persisted edition` };
-  }
+async function verifyPdf(response) {
   status(response); assert.match(response.headers.get("content-type") || "", /application\/pdf/);
   const bytes = new Uint8Array(await response.arrayBuffer());
   assert.equal(new TextDecoder().decode(bytes.slice(0, 5)), "%PDF-");
   return { message: `200; valid PDF signature, ${bytes.length} bytes` };
-});
+}
+await check("GET /api/pdf", async () => verifyPdf(await request("/api/pdf?topics=Technology,World")));
+await check("GET /api/editions/[date]/pdf", async () => verifyPdf(await request(`/api/editions/${edition?.date || new Date().toISOString().slice(0, 10)}/pdf`)));
+if (edition) await check("POST /api/pdf (displayed edition)", async () => verifyPdf(await request("/api/pdf", edition)));
 console.log(`Production verification: ${origin}`);
 console.table(results);
 process.exitCode = results.some((result) => result.result !== "PASS") ? 1 : 0;

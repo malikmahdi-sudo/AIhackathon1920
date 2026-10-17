@@ -1,19 +1,18 @@
+import { NextRequest } from "next/server";
 import { currentPreferences } from "@/lib/preference-store";
 import { editions } from "@/lib/editions/service";
 import { validEditionDate } from "@/lib/storage/types";
-import { createNewspaperPdf } from "@/lib/pdf/newspaper";
+import { fallbackPdf, pdfResponse, postedPdf } from "@/lib/pdf/response";
 
 export const runtime = "nodejs";
-export async function GET(_request: Request, { params }: { params: Promise<{ date: string }> }) {
-  const headers = { "Cache-Control": "private, no-store" };
+export async function GET(request: NextRequest, { params }: { params: Promise<{ date: string }> }) {
+  const { date } = await params;
+  if (!validEditionDate(date)) return Response.json({ error: "Invalid edition date." }, { status: 400 });
   try {
     const preferences = await currentPreferences();
-    if (!preferences) return Response.json({ error: "Please complete onboarding first." }, { status: 401, headers });
-    const { date } = await params;
-    if (!validEditionDate(date)) return Response.json({ error: "Invalid edition date." }, { status: 400, headers });
-    const edition = await editions.read(preferences.id, date);
-    if (!edition) return Response.json({ error: "This edition was not found in your archive." }, { status: 404, headers });
-    const bytes = await createNewspaperPdf(edition);
-    return new Response(new Uint8Array(bytes), { headers: { ...headers, "Content-Type": "application/pdf", "Content-Disposition": `attachment; filename="morning-paper-${date}.pdf"` } });
-  } catch { return Response.json({ error: "We couldn’t create your PDF. Please try again." }, { status: 500, headers }); }
+    const edition = preferences ? await editions.read(preferences.id, date) : null;
+    if (edition) return pdfResponse(edition);
+  } catch { /* Stateless export needs no profile, database or filesystem writes. */ }
+  return fallbackPdf(request, date);
 }
+export async function POST(request: NextRequest) { return postedPdf(request); }

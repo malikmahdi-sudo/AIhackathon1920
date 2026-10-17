@@ -32,21 +32,24 @@ try {
   assert.deepEqual(body.preferences, preferences);
   assert.equal(response.headers.get("set-cookie"), null);
   assert.match(response.headers.get("cache-control"), /no-store/);
-  assert.equal((await fetch(`${origin}/api/preferences`, { headers })).status, 503);
+  assert.equal((await fetch(`${origin}/api/preferences`, { headers })).status, 200);
   assert.equal((await fetch(`${origin}/onboarding`, { headers })).status, 200);
   assert.equal((await fetch(`${origin}/api/preferences`, { method: "POST", headers, body: JSON.stringify({ ...preferences, topics: [] }) })).status, 400);
   for (const route of ["/api/recommendations", "/api/editions/2026-10-17/pdf", "/api/editions/2026-10-17/briefing", "/api/signals"]) {
     const post = route.endsWith("briefing") || route.endsWith("signals");
     const res = await fetch(`${origin}${route}`, { method: post ? "POST" : "GET", headers, ...(route.endsWith("signals") ? { body: JSON.stringify({ date: "2026-10-17", articleId: "fixture", type: "like" }) } : {}) });
-    assert.equal(res.status, 500);
-    const data = await res.json();
-    assert.equal(typeof data.error, "string");
-    assert.ok(!JSON.stringify(data).includes("EROFS"));
+    const expected = route.endsWith("pdf") || route.endsWith("signals") ? 200 : 401;
+    assert.equal(res.status, expected);
+    if (route.endsWith("pdf")) assert.match(res.headers.get("content-type"), /application\/pdf/);
+    else {
+      const data = await res.json();
+      assert.ok(!JSON.stringify(data).includes("EROFS"));
+    }
   }
   for (const route of ["/archives", "/archives/2026-10-17"]) {
     const res = await fetch(`${origin}${route}`, { headers });
     assert.equal(res.status, 200);
-    assert.match(await res.text(), /reading desk is reconnecting/);
+    assert.match(await res.text(), /What sparks your curiosity/);
   }
   const paperPage = await fetch(`${origin}/paper`, { headers, redirect: "manual" });
   assert.equal(paperPage.status, 200);

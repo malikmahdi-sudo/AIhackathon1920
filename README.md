@@ -4,6 +4,21 @@
 
 A personal daily newspaper for NaSCon '26, built one committed milestone at a time.
 
+## Self-contained deployment
+
+No external database is required. On Vercel, preferences and learning belong to
+browser localStorage; `/api/paper` ranks feeds using those choices and bounded
+local weights. PDF export posts the displayed edition to `/api/pdf`, which renders
+in memory. Direct PDF GET requests use current feeds/default interests or an
+explicit empty paper during outages. Signals return a stateless acknowledgement;
+the browser saves feedback. Local development can still use JSON files.
+
+This client mode does not provide server archives or cross-device synchronization.
+Clearing site data clears local preferences and learning. The older Supabase adapter
+is retained for compatibility but is not used by Vercel preference/reading flows.
+Set `PRODUCTION_URL` to a local production server and run
+`node scripts/verify-production.mjs` to verify before deploying.
+
 ## Architecture and demonstration
 
 See the [architecture diagram](docs/architecture.md), [five-minute demo guide](docs/demo.md),
@@ -12,7 +27,7 @@ The app combines adaptive personalization with an optional AI briefing.
 
 ![Architecture overview](docs/architecture-diagram.svg)
 
-**Demo placeholder:** [5-minute Loom video � replace before submission](https://www.loom.com/share/REPLACE_WITH_VIDEO_ID)
+**Demo placeholder:** [5-minute Loom video — replace before submission](https://www.loom.com/share/REPLACE_WITH_VIDEO_ID)
 CI builds verified artifacts; automatic hosting deployment remains unconfigured.
 
 ## Run locally
@@ -67,7 +82,7 @@ tests/             Offline engine tests and live integration checks
 - [x] 6. Reader signals and adaptive recommendations
 - [x] 7. Architecture diagram and final documentation
 
-Readers can select 1–5 topics,
+Readers can select 1â€“5 topics,
 a 5/10/20-minute reading time, and a timezone, then save or edit their choices.
 Recommendations are available through `/api/recommendations` after onboarding.
 The daily paper, archives, and PDF downloads are available. Optional source-linked AI takeaways are available from both current and archived editions.
@@ -155,7 +170,7 @@ review each publisher's feed terms before public/commercial deployment.
   from the URL. Invalid dates or editions belonging to another reader show not found.
 - Editions store article excerpts, original publisher links, recommendation reasons,
   and a snapshot of preferences and timezone. Changes to preferences affect the next
-  unsaved local date; today’s saved paper is not rewritten. Changing timezone may
+  unsaved local date; todayâ€™s saved paper is not rewritten. Changing timezone may
   select a different calendar date, while existing date-keyed snapshots remain intact.
 - In local mode, files live in `data/editions/` and are excluded from Git. A complete temporary file
   is published with an atomic filesystem hard link, so concurrent requests cannot

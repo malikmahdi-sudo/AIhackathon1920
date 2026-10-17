@@ -7,6 +7,7 @@ import { EditionView } from "./edition-view";
 import { readPreferenceBackup } from "@/lib/preference-backup";
 import { validatePreferences } from "@/lib/preferences";
 import type { DailyEdition } from "@/types/paper";
+import { browserTopicWeights } from "@/lib/browser-learning";
 
 type Result = { status: "ready" | "empty" | "unavailable"; synced: boolean; edition?: DailyEdition };
 export function PaperReader() {
@@ -29,6 +30,7 @@ export function PaperReader() {
           } catch { /* Anonymous readers get a default edition, not a redirect. */ }
         }
         const query = new URLSearchParams();
+        query.set("weights", JSON.stringify(browserTopicWeights()));
         if (preferences) {
           query.set("topics", preferences.topics.join(",")); query.set("readingMinutes", String(preferences.readingMinutes)); query.set("timezone", preferences.timezone);
         }

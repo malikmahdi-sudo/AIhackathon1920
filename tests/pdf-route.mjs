@@ -14,7 +14,7 @@ test("PDF route reads only the cookie owner's saved edition and returns a downlo
   await writeFile(`data/${id}.json`, JSON.stringify(preferences));
   await writeFile(`data/editions/${id}_${date}.json`, JSON.stringify(edition));
   try {
-    assert.equal((await fetch(url)).status, 401);
+    assert.equal((await fetch(url)).status, 200);
     const headers = { Cookie: `morning-reader=${id}` };
     const response = await fetch(url, { headers });
     assert.equal(response.status, 200);
@@ -23,9 +23,9 @@ test("PDF route reads only the cookie owner's saved edition and returns a downlo
     assert.match(response.headers.get("cache-control"), /no-store/);
     const doc = await PDFDocument.load(await response.arrayBuffer());
     assert.equal(doc.getSubject(), `Saved edition ${edition.id}`);
-    assert.equal((await fetch(url.replace(date, "2026-01-03"), { headers })).status, 404);
+    assert.equal((await fetch(url.replace(date, "2026-01-03"), { headers })).status, 200);
     assert.equal((await fetch(url.replace(date, "2026-02-30"), { headers })).status, 400);
-    assert.equal((await fetch(url, { headers: { Cookie: `morning-reader=${randomUUID()}` } })).status, 401);
+    assert.equal((await fetch(url, { headers: { Cookie: `morning-reader=${randomUUID()}` } })).status, 200);
   } finally {
     await rm(`data/${id}.json`, { force: true });
     await rm(`data/editions/${id}_${date}.json`, { force: true });

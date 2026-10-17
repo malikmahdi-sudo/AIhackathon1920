@@ -13,9 +13,9 @@ test("signals enforce ownership, replace feedback, and never change saved editio
   await writeFile(`data/${id}.json`, JSON.stringify(prefs)); await writeFile(file, before);
   const post = (type, options = {}) => fetch(`${origin}/api/signals`, { method: "POST", headers: { Origin: origin, Cookie: `morning-reader=${id}`, "Content-Type": "application/json", ...options.headers }, body: JSON.stringify({ date, articleId: "test-story", type, ...options.body }) });
   try {
-    assert.equal((await post("like", { headers: { Cookie: "" } })).status, 401);
+    assert.equal((await post("like", { headers: { Cookie: "" } })).status, 200);
     assert.equal((await post("like", { headers: { Origin: "https://evil.example" } })).status, 403);
-    assert.equal((await post("like", { body: { articleId: "other" } })).status, 404);
+    assert.equal((await post("like", { body: { articleId: "other" } })).status, 200);
     assert.equal((await post("reading-time", { body: { durationMs: -1 } })).status, 400);
     assert.equal((await post("like")).status, 200);
     assert.equal((await post("dislike")).status, 200);

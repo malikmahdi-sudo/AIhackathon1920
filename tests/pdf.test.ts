@@ -4,6 +4,7 @@ import { PDFDocument } from "pdf-lib";
 import { mkdir, writeFile } from "node:fs/promises";
 import { createNewspaperPdf } from "../src/lib/pdf/newspaper";
 import type { DailyEdition } from "../src/types/paper";
+import { parsePdfEdition } from "../src/lib/pdf/edition-input";
 
 const edition: DailyEdition = {
   id: "pdf-test-edition", readerId: "test", date: "2026-10-17", generatedAt: "2026-10-17T06:00:00Z",
@@ -14,6 +15,15 @@ const edition: DailyEdition = {
     url: `https://example.com/story-${i}`, source: "Sample Publisher", publishedAt: "2026-10-17T04:00:00Z", topics: ["Science"], matchedTopics: ["Science"], reason: "Matches Science", estimatedReadingMinutes: 3,
   })),
 };
+
+test("browser PDF input preserves displayed content and rejects unsafe or excessive input", () => {
+  const parsed = parsePdfEdition(edition);
+  assert.deepEqual(parsed.articles, edition.articles);
+  assert.equal(parsed.readerId, "browser-export");
+  assert.throws(() => parsePdfEdition({ ...edition, articles: Array(21).fill(edition.articles[0]) }));
+  assert.throws(() => parsePdfEdition({ ...edition, articles: [{ ...edition.articles[0], url: "javascript:alert(1)" }] }));
+  assert.throws(() => parsePdfEdition({ ...edition, articles: [{ ...edition.articles[0], summary: "x".repeat(5001) }] }));
+});
 test("PDF renders the immutable edition, links, multiple pages, and missing summaries", async () => {
   const before = JSON.stringify(edition);
   const bytes = await createNewspaperPdf(edition);
